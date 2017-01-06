@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class RestaurantDetailViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -15,12 +16,19 @@ class RestaurantDetailViewController: UIViewController, UITableViewDataSource, U
     @IBOutlet var tableView:UITableView!
     @IBOutlet var mapView: MKMapView!
     
-    var restaurant:Restaurant!
+    var restaurant:RestaurantMO!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        restaurantImageView.image = UIImage(named: restaurant.image)
+        
+        if let imageData = restaurant.image {
+            if let image = UIImage(data:imageData as Data) {
+                restaurantImageView.image = image
+            }
+        }
+        
+        
         
         tableView.backgroundColor = UIColor(red: 240.0/255.0, green: 240.0/255.0, blue: 240.0/255.0, alpha: 0.2)
         tableView.separatorColor = UIColor(red: 240.0/255.0, green: 240.0/255.0, blue: 240.0/255.0, alpha: 0.8)
@@ -39,7 +47,7 @@ class RestaurantDetailViewController: UIViewController, UITableViewDataSource, U
         
         // Pin the restaurant location on map
         let geoCoder = CLGeocoder()
-        geoCoder.geocodeAddressString(restaurant.location, completionHandler: { placemarks, error in
+        geoCoder.geocodeAddressString(restaurant.location!, completionHandler: { placemarks, error in
             if error != nil {
                 print(error)
                 return
@@ -106,8 +114,17 @@ class RestaurantDetailViewController: UIViewController, UITableViewDataSource, U
             cell.fieldLabel.text = "Telefono"
             cell.valueLabel.text = restaurant.phone
         case 4:
+            
             cell.fieldLabel.text = "He estado aqui"
-            cell.valueLabel.text = (restaurant.isVisited) ? "Si, he estado aqui antes. \(restaurant.rating)" : "No"
+            
+            var beenHere = (restaurant.isVisited) ? "Si, he estado aqui antes. " : "No"
+            
+            if let rating = restaurant.rating {
+                beenHere += rating
+            }
+            
+            cell.valueLabel.text = beenHere
+            
         default:
             cell.fieldLabel.text = ""
             cell.valueLabel.text = ""
@@ -133,7 +150,15 @@ class RestaurantDetailViewController: UIViewController, UITableViewDataSource, U
             case "dislike": restaurant.rating = "😷"
             default: break
             }
+            
+            restaurant.name = restaurant.name! + " 👀"
         }
+        
+        if let appDelegate = UIApplication.shared.delegate as? AppDelegate{
+            appDelegate.saveContext()
+        }
+        
+        //Save Context
         
         tableView.reloadData()
     }

@@ -7,9 +7,12 @@
 //
 
 import UIKit
+import CoreData
 
 class AddRestaurantController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
+    var restaurant : RestaurantMO!
+    
     @IBOutlet var photoImageView: UIImageView!
     
     @IBOutlet var nameTextField:UITextField!
@@ -84,10 +87,30 @@ class AddRestaurantController: UITableViewController, UIImagePickerControllerDel
             present(alertController, animated: true, completion: nil)
         }
         
-        print("Name: \(nameTextField.text)")
-        print("Type: \(typeTextField.text)")
-        print("Location: \(locationTextField.text)")
-        print("Have you been here: \(isVisited)")
+        //print("Name: \(nameTextField.text)")
+        //print("Type: \(typeTextField.text)")
+        //print("Location: \(locationTextField.text)")
+        //print("Have you been here: \(isVisited)")
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        restaurant = RestaurantMO(context: context)
+        
+        if let restaurantImage = photoImageView.image {
+            if let imageData = UIImagePNGRepresentation(restaurantImage) {
+                restaurant.image = imageData as NSData?
+            }
+        }
+        
+        restaurant.name = nameTextField.text
+        restaurant.type = typeTextField.text
+        restaurant.location = locationTextField.text
+        restaurant.isVisited = isVisited
+        
+        
+        appDelegate.saveContext()
+        
         
         dismiss(animated: true, completion: nil)
     }

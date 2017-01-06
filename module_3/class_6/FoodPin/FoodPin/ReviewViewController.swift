@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class ReviewViewController: UIViewController {
     
@@ -15,7 +16,7 @@ class ReviewViewController: UIViewController {
     
     // For exercise #1
     @IBOutlet var restaurantImageView: UIImageView!
-    var restaurant:Restaurant?
+    var restaurant:RestaurantMO?
     
     // For exercise #2
     @IBOutlet var closeButton: UIButton!
@@ -25,7 +26,14 @@ class ReviewViewController: UIViewController {
 
         // Solution to Exercise #1 - Start here
         if let restaurant = restaurant {
-            restaurantImageView.image = UIImage(named: restaurant.image)
+            
+            if let imageData = restaurant.image {
+                if let image = UIImage(data:imageData as Data) {
+                    restaurantImageView.image = image
+                }
+            }
+            
+            
         }
         // Solution to Exercise #1 - End here
         
